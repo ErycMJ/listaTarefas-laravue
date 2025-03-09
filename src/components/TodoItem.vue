@@ -29,41 +29,53 @@
 </template>
 
 <script>
+import { ref } from 'vue'
+import { useStore } from 'vuex'
+
 export default {
     name: 'TodoFormAdd',
-    data() {
-        return {
-            title: this.todo.title,
-            isCompleted: this.todo.completed
-        }
-    },
     props: {
         todo: {
             type: Object,
             default: () => ({})
         }
     },
-    methods: {
-        updateTodo() {
+    setup(props) {
+        const title = ref(props.todo.title)
+        const isCompleted = ref(props.todo.completed)
+        const store = useStore()
+
+        const updateTodo = () => {
             const payload = {
-                id: this.todo.id,
+                id: props.todo.id,
                 data: {
-                    title: this.title,
-                    completed: this.isCompleted
+                    title: title.value,
+                    completed: isCompleted.value
                 }
             }
-            this.$store.dispatch('updateTodo', payload)
-        },
-        onTitleChange() {
-            if (!this.title) return
-            this.updateTodo()
-        },
-        onCheckClick() {
-            this.isCompleted = !this.isCompleted
-            this.updateTodo()
-        },
-        onDelete() {
-            this.$store.dispatch('deleteTodo', this.todo.id)
+            store.dispatch('updateTodo', payload)
+        }
+
+        const onTitleChange = () => {
+            if (!title.value) return
+            updateTodo()
+        }
+
+        const onCheckClick = () => {
+            isCompleted.value = !isCompleted.value
+            updateTodo()
+        }
+
+        const onDelete = () => {
+            store.dispatch('deleteTodo', props.todo.id)
+        }
+
+        return {
+            title,
+            isCompleted,
+            onTitleChange,
+            onCheckClick,
+            onDelete
         }
     }
 }
